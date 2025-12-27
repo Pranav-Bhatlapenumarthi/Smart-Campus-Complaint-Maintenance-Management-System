@@ -1,29 +1,39 @@
 import mongoose from "mongoose";
 
-const ComplaintSchema = new mongoose.Schema({
-    user:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
+const complaintSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, enum: ['Electrical', 'Plumbing', 'Infrastructure', 'Internet'], required: true },
-    priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
+    category: { 
+        type: String, 
+        enum: ["Electrical", "Plumbing", "Infrastructure", "Internet", "Other"], 
+        required: true 
+    },
+    location: { type: String, required: true }, // 
+    priority: { 
+        type: String, 
+        enum: ["Low", "Medium", "High"], 
+        default: "Medium" 
+    },
+    image: { type: String }, // URL to the uploaded proof
     status: { 
         type: String, 
-        enum: ['Pending', 'Assigned', 'In Progress', 'Resolved'], 
-        default: 'Pending' 
+        enum: ["Pending", "Assigned", "In Progress", "Resolved"], 
+        default: "Pending" 
     },
-    image: {
-      type: String,
+    complainant: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User", 
+        required: true 
     },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    history: [{ 
+    assignedTo: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User" // Technician
+    },
+    history: [{ // Audit trail [cite: 97]
         action: String,
-        date: { type: Date, default: Date.now },
-        by: String
+        timestamp: { type: Date, default: Date.now },
+        by: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
     }]
-}, {timestamps:true});
+}, { timestamps: true });
 
-export const Complaint=mongoose.model("Complaint", ComplaintSchema);
+export const Complaint = mongoose.model("Complaint", complaintSchema);
