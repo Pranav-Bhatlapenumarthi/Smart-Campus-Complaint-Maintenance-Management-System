@@ -3,6 +3,21 @@ import APIError from "../utils/APIError.js";
 import APIResponse from "../utils/APIResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
+// Helper to generate tokens
+const generateAccessAndRefreshTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false }); // Skip validation to save just the token
+        return { accessToken, refreshToken };
+    } catch (error) {
+        throw new APIError(500, "Something went wrong while generating tokens");
+    }
+};
+
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -51,40 +66,46 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true // Set to true in production
     };
 
     return res
         .status(200)
-        .cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-        })
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
             new APIResponse(
                 200,
-                {
-                    user: loggedInUser,
-                    accessToken,
-                },
+                { user: loggedInUser, accessToken, refreshToken },
                 "User logged in successfully"
             )
         );
 });
-const generateAccessAndRefreshTokens = async (userId) => {
-    try {
-        const user = await User.findById(userId);
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
 
-        user.refreshToken = refreshToken;
-        await user.save({ validateBeforeSave: false });
-        return { accessToken, refreshToken };
-    }
-    catch (error) {
-        throw new APIError(500, "Something went wrong while generating tokens");
-    }
-}
+// Logout User
+const logoutUser = asyncHandler(async (req, res) => {
+    // 1. Clear the refresh token in the database
+    await User.findByIdAndUpdate(
+        req.user._id, // req.user comes from auth middleware
+        {
+            $unset: { refreshToken: 1 } // Remove the field
+        },
+        {
+            new: true
+        }
+    );
 
-export { registerUser, loginUser };
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    // 2. Clear cookies
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new APIResponse(200, {}, "User logged out successfully"));
+});
+
+export { registerUser, loginUser, logoutUser };
