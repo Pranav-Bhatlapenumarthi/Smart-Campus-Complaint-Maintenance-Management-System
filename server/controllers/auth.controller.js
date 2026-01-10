@@ -46,7 +46,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new APIError(401, "Invalid user credentials");
     }
 
-    const accessToken = user.generateAccessToken();
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
     const loggedInUser = await User.findById(user._id).select("-password");
 
     const options = {
@@ -56,14 +56,35 @@ const loginUser = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+        })
         .json(
             new APIResponse(
-                200, 
-                { user: loggedInUser, accessToken }, 
+                200,
+                {
+                    user: loggedInUser,
+                    accessToken,
+                },
                 "User logged in successfully"
             )
         );
 });
+const generateAccessAndRefreshTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+        return { accessToken, refreshToken };
+    }
+    catch (error) {
+        throw new APIError(500, "Something went wrong while generating tokens");
+    }
+}
 
 export { registerUser, loginUser };
