@@ -36,3 +36,8 @@ lerna-debug.log*
 
 # Environment variables
 .env
+
+.env
+server/.env
+client/.env
+node_modules/
