@@ -1,7 +1,7 @@
-import { Complaint } from "../models/complaint.model.js";
+import { Complaint } from "../models/Complaint.js";
 import APIError from "../utils/APIError.js";
 import APIResponse from "../utils/APIResponse.js";
-import { User } from "../models/user.model.js";
+import { User } from "../models/User.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 // 1. Register Complaint (Student/Faculty)
