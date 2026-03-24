@@ -8,15 +8,15 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(cors({
-//   origin: "http://localhost:3000",
-//   credentials: true
-// }));
 
 // Static folder for uploaded images
 app.use("/public", express.static("public"));

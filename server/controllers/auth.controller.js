@@ -66,7 +66,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true // Set to true in production
+        secure: false // Set to true in production
     };
 
     return res
@@ -97,7 +97,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: false // Set to true in production
     };
 
     // 2. Clear cookies
