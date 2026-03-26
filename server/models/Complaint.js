@@ -5,31 +5,33 @@ const complaintSchema = new mongoose.Schema({
     description: { type: String, required: true },
     category: { 
         type: String, 
-        enum: ["Electrical", "Plumbing", "Infrastructure", "Internet", "Other"], 
+        enum: ["Electrical", "Plumbing", "Infrastructure", "Internet", "HVAC", "IT/Network", "Furniture", "Cleaning", "Safety", "Other"], 
         required: true 
     },
-    location: { type: String, required: true }, // 
+    location: { type: String, required: true },
     priority: { 
         type: String, 
-        enum: ["Low", "Medium", "High"], 
-        default: "Medium" 
+        enum: ["low", "medium", "high"], 
+        default: "medium",
+        lowercase: true
     },
-    image: { type: String }, // URL to the uploaded proof
+    image: { type: String },
     status: { 
         type: String, 
-        enum: ["Pending", "Assigned", "In Progress", "Resolved"], 
-        default: "Pending" 
+        enum: ["pending", "assigned", "in-progress", "resolved", "closed"], 
+        default: "pending",
+        lowercase: true
     },
-    complainant: { 
+    complaint: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User", 
         required: true 
     },
     assignedTo: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" // Technician
+        ref: "User"
     },
-    history: [{ // Audit trail [cite: 97]
+    history: [{ 
         action: String,
         timestamp: { type: Date, default: Date.now },
         by: { type: mongoose.Schema.Types.ObjectId, ref: "User" }

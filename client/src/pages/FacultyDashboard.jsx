@@ -8,7 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { FiFilter, FiSearch, FiPlusCircle, FiRefreshCw } from 'react-icons/fi'
 import './Dashboard.css'
 
-const StudentDashboard = () => {
+const FacultyDashboard = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [complaints, setComplaints] = useState([])
@@ -34,15 +34,17 @@ const StudentDashboard = () => {
   const fetchComplaints = async () => {
     try {
       setLoading(true)
-      console.log('Fetching complaints for student user:', user?.email)
+      console.log('Fetching complaints for faculty user:', user?.email)
       const response = await axios.get('/api/v1/complaints')
       const complaintsData = response.data.data || response.data
-      console.log('Fetched complaints:', complaintsData)
+      console.log('Response structure:', response.data)
+      console.log('Fetched faculty complaints:', complaintsData)
       setComplaints(Array.isArray(complaintsData) ? complaintsData : [])
       calculateStats(Array.isArray(complaintsData) ? complaintsData : [])
       setLoading(false)
     } catch (error) {
       console.error('Error fetching complaints:', error)
+      console.error('Error response:', error.response)
       setComplaints([])
       setLoading(false)
     }
@@ -88,8 +90,8 @@ const StudentDashboard = () => {
       <div className="dashboard-container">
         <div className="dashboard-header">
           <div className="header-content">
-            <h1 className="dashboard-title">My Complaints</h1>
-            <p className="dashboard-subtitle">Track and manage your maintenance requests</p>
+            <h1 className="dashboard-title">My Maintenance Requests</h1>
+            <p className="dashboard-subtitle">Track and manage your facility maintenance requests</p>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button 
@@ -103,7 +105,7 @@ const StudentDashboard = () => {
               className="btn-primary"
               onClick={() => navigate('/complaint/new')}
             >
-              <FiPlusCircle /> New Complaint
+              <FiPlusCircle /> New Request
             </button>
           </div>
         </div>
@@ -114,7 +116,7 @@ const StudentDashboard = () => {
             <div className="stat-icon">📊</div>
             <div className="stat-content">
               <div className="stat-value">{stats.total}</div>
-              <div className="stat-label">Total Complaints</div>
+              <div className="stat-label">Total Requests</div>
             </div>
           </div>
           
@@ -149,7 +151,7 @@ const StudentDashboard = () => {
             <FiSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Search complaints..."
+              placeholder="Search requests..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -179,12 +181,12 @@ const StudentDashboard = () => {
           </div>
         ) : (
           <div className="empty-state">
-            <div className="empty-state-icon">📝</div>
-            <h3>No complaints found</h3>
+            <div className="empty-state-icon">📋</div>
+            <h3>No maintenance requests yet</h3>
             <p>
               {searchTerm || filterStatus !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Click "New Complaint" to submit your first complaint'}
+                ? 'Try adjusting your search or filters'
+                : 'Click "New Request" to submit your first maintenance request'}
             </p>
           </div>
         )}
@@ -193,4 +195,4 @@ const StudentDashboard = () => {
   )
 }
 
-export default StudentDashboard
+export default FacultyDashboard

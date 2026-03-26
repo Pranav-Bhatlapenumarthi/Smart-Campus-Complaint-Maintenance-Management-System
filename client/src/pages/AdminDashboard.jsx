@@ -33,13 +33,13 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [complaintsRes, techniciansRes] = await Promise.all([
-        axios.get('/api/complaints'),
-        axios.get('/api/users/technicians')
+        axios.get('/api/v1/complaints'),
+        axios.get('/api/v1/users/technicians')
       ])
       
-      setComplaints(complaintsRes.data.complaints)
-      setTechnicians(techniciansRes.data.technicians)
-      calculateStats(complaintsRes.data.complaints)
+      setComplaints(complaintsRes.data.data || complaintsRes.data)
+      setTechnicians(techniciansRes.data.data || techniciansRes.data)
+      calculateStats(complaintsRes.data.data || complaintsRes.data)
       setLoading(false)
     } catch (error) {
       console.error('Error fetching data:', error)

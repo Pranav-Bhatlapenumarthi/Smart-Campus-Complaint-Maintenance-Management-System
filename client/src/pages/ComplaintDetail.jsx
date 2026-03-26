@@ -32,57 +32,73 @@ const ComplaintDetail = () => {
 
   const fetchComplaintDetails = async () => {
     try {
-      const response = await axios.get(`/api/complaints/${id}`)
-      setComplaint(response.data.complaint)
-      setNewStatus(response.data.complaint.status)
+      const response = await axios.get(`/api/v1/complaints/${id}`)
+      const complaintData = response.data.data || response.data
+      setComplaint(complaintData)
+      setNewStatus('') // Start with empty to force user selection
       setLoading(false)
     } catch (error) {
       console.error('Error fetching complaint:', error)
+      alert('Error fetching complaint details')
       setLoading(false)
     }
   }
 
   const fetchTechnicians = async () => {
     try {
-      const response = await axios.get('/api/users/technicians')
-      setTechnicians(response.data.technicians)
+      const response = await axios.get('/api/v1/users/technicians')
+      const techniciansData = response.data.data || response.data
+      setTechnicians(Array.isArray(techniciansData) ? techniciansData : [])
     } catch (error) {
       console.error('Error fetching technicians:', error)
     }
   }
 
   const handleStatusUpdate = async () => {
-    if (!newStatus) return
+    if (!newStatus) {
+      alert('Please select a status')
+      return
+    }
 
     setUpdating(true)
     try {
-      const response = await axios.put(`/api/complaints/${id}/status`, {
+      console.log('Updating status to:', newStatus)
+      const response = await axios.patch(`/api/v1/complaints/${id}/status`, {
         status: newStatus,
         note: updateNote
       })
-      setComplaint(response.data.complaint)
+      console.log('Status update response:', response.data)
+      const updatedComplaint = response.data.data || response.data
+      setComplaint(updatedComplaint)
+      setNewStatus(updatedComplaint.status) // Update the form state
       setUpdateNote('')
       alert('Status updated successfully')
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('Failed to update status')
+      console.error('Error details:', error.response?.data)
+      alert('Failed to update status: ' + (error.response?.data?.message || error.message))
     }
     setUpdating(false)
   }
 
   const handleAssignTechnician = async () => {
-    if (!assignTechnicianId) return
+    if (!assignTechnicianId) {
+      alert('Please select a technician')
+      return
+    }
 
     setUpdating(true)
     try {
-      const response = await axios.put(`/api/complaints/${id}/assign`, {
+      const response = await axios.patch(`/api/v1/complaints/${id}/assign`, {
         technicianId: assignTechnicianId
       })
-      setComplaint(response.data.complaint)
+      const updatedComplaint = response.data.data || response.data
+      setComplaint(updatedComplaint)
+      setAssignTechnicianId('')
       alert('Technician assigned successfully')
     } catch (error) {
       console.error('Error assigning technician:', error)
-      alert('Failed to assign technician')
+      alert('Failed to assign technician: ' + (error.response?.data?.message || error.message))
     }
     setUpdating(false)
   }
@@ -290,13 +306,10 @@ const ComplaintDetail = () => {
                     onChange={(e) => setNewStatus(e.target.value)}
                     disabled={updating}
                   >
-                    <option value="pending">Pending</option>
+                    <option value="">Select new status...</option>
                     <option value="in-progress">In Progress</option>
                     <option value="resolved">Resolved</option>
                     <option value="closed">Closed</option>
-                    {user?.role === 'admin' && (
-                      <option value="rejected">Rejected</option>
-                    )}
                   </select>
 
                   <textarea
@@ -309,7 +322,7 @@ const ComplaintDetail = () => {
 
                   <button
                     onClick={handleStatusUpdate}
-                    disabled={updating || newStatus === complaint.status}
+                    disabled={updating || !newStatus}
                     className="btn-primary btn-full"
                   >
                     {updating ? 'Updating...' : 'Update Status'}

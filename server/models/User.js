@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     // Roles defined in SRS: Student, Faculty, Technician, Admin [cite: 86]
     role: { 
         type: String, 
-        enum: ["student", "faculty", "staff", "admin"], 
+        enum: ["student", "faculty", "technician", "admin"], 
         default: "student" 
     }
 }, { timestamps: true });

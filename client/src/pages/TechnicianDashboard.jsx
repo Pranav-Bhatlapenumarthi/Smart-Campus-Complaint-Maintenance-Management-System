@@ -29,9 +29,9 @@ const TechnicianDashboard = () => {
 
   const fetchAssignedComplaints = async () => {
     try {
-      const response = await axios.get('/api/complaints/assigned-to-me')
-      setComplaints(response.data.complaints)
-      calculateStats(response.data.complaints)
+      const response = await axios.get('/api/v1/complaints')
+      setComplaints(response.data.data || response.data)
+      calculateStats(response.data.data || response.data)
       setLoading(false)
     } catch (error) {
       console.error('Error fetching assigned complaints:', error)

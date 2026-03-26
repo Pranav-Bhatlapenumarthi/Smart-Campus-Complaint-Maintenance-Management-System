@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import StudentDashboard from './pages/StudentDashboard'
+import FacultyDashboard from './pages/FacultyDashboard'
 import TechnicianDashboard from './pages/TechnicianDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import ComplaintForm from './pages/ComplaintForm'
@@ -73,8 +74,9 @@ const DashboardRouter = () => {
 
   switch (user.role) {
     case 'student':
-    case 'faculty':
       return <StudentDashboard />
+    case 'faculty':
+      return <FacultyDashboard />
     case 'technician':
       return <TechnicianDashboard />
     case 'admin':

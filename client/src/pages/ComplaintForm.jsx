@@ -74,21 +74,25 @@ const ComplaintForm = () => {
         submitData.append(key, formData[key])
       })
       
-      images.forEach(image => {
-        submitData.append('images', image)
-      })
+      if (images.length > 0) {
+        submitData.append('image', images[0]) // Only send first image for now
+      }
 
-      const response = await axios.post('/api/complaints', submitData, {
+      const response = await axios.post('/api/v1/complaints', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
 
+      console.log('Complaint created:', response.data)
       setSuccess(true)
+      const complaintId = response.data.data?._id || response.data._id
       setTimeout(() => {
-        navigate(`/complaint/${response.data.complaint._id}`)
+        navigate(`/complaint/${complaintId}`)
       }, 1500)
     } catch (err) {
+      console.error('Error response:', err.response)
+      console.error('Error:', err)
       setError(err.response?.data?.message || 'Failed to submit complaint')
       setLoading(false)
     }

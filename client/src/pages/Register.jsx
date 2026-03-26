@@ -90,6 +90,12 @@ const Register = () => {
       label: 'Technician',
       icon: '🔧',
       description: 'Resolve complaints'
+    },
+    {
+      value: 'admin',
+      label: 'Admin',
+      icon: '👨‍💼',
+      description: 'System administrator'
     }
   ]
 
